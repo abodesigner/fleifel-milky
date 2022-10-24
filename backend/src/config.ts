@@ -6,8 +6,8 @@ const {
     PG_USER,
     PG_PASSWORD,
     PG_HOST,
-    PG_DATABASE,
-    PG_DATABASE_TEST,
+    PG_DB,
+    PG_DB_TEST,
     PG_PORT,
 } = process.env
 export default {
@@ -15,7 +15,7 @@ export default {
     user: PG_USER,
     password: PG_PASSWORD,
     host: PG_HOST,
-    db: PG_DATABASE,
-    db_test: PG_DATABASE_TEST,
+    db: PG_DB,
+    db_test: PG_DB_TEST,
     db_port: PG_PORT
 }
