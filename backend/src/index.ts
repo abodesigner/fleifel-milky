@@ -1,7 +1,11 @@
 import express, { Request, Response } from "express";
-import rateLimit from 'express-rate-limit'
-const PORT = 3000;
+import rateLimit from 'express-rate-limit';
+import config from "./config";
+import pool from "./database";
+
+const PORT = config.port || 3000;
 const app = express();
+
 
 app.use(express.json());
 // Apply the rate limiting middleware to all requests
@@ -27,6 +31,19 @@ app.post("/", (req: Request, res: Response) => {
     })
 })
 
+// TEST DATABASE
+const connectDb = async () => {
+  try {
+    await pool.connect();
+    const res = await pool.query('SELECT NOW()');
+    console.log(res);
+    await pool.end();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+connectDb();
 
 
 app.listen(PORT, ()=> {
