@@ -3,19 +3,20 @@ dotenv.config();
 
 const {
     PORT,
-    PG_USER,
-    PG_PASSWORD,
+    NODE_ENV,
     PG_HOST,
+    PG_PORT,
     PG_DB,
     PG_DB_TEST,
-    PG_PORT,
+    PG_USER,
+    PG_PASSWORD,
 } = process.env
+
 export default {
-    port: PORT,
-    user: PG_USER,
-    password: PG_PASSWORD,
     host: PG_HOST,
-    db: PG_DB,
-    db_test: PG_DB_TEST,
-    db_port: PG_PORT
+    port: PORT,
+    db_port: PG_PORT,
+    db: NODE_ENV === "dev" ? PG_DB : PG_DB_TEST,
+    user: PG_USER,
+    password: PG_PASSWORD
 }

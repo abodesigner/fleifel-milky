@@ -1,13 +1,18 @@
+import config from "./config";
 import express, { Request, Response } from "express";
 import rateLimit from 'express-rate-limit';
-import config from "./config";
-import pool from "./database";
+import db from "./database";
+import routes from "./routes";
+import errorMiddleware from "./middleware/error.middleware";
 
 const PORT = config.port || 3000;
 const app = express();
 
-
 app.use(express.json());
+
+// ROUTES
+app.use("/api", routes);
+
 // Apply the rate limiting middleware to all requests
 app.use(
     rateLimit({
@@ -19,31 +24,33 @@ app.use(
 )
 
 app.get("/", (req: Request, res: Response) => {
+
     res.json({
         message : "Hello"
     })
+
 })
 
-app.post("/", (req: Request, res: Response) => {
-    res.json({
-        message : "Hello POST",
-        data : req.body
-    })
-})
+app.use(errorMiddleware);
 
 // TEST DATABASE
 const connectDb = async () => {
   try {
-    await pool.connect();
-    const res = await pool.query('SELECT NOW()');
+    await db.connect();
+    const res = await db.query('SELECT NOW()');
     console.log(res);
-    await pool.end();
+    await db.end();
   } catch (error) {
     console.log(error);
   }
 };
+//connectDb();
 
-connectDb();
+app.use((req: Request, res:Response)=> {
+    res.status(400).json({
+        message: "SORRY, this url not exist"
+    })
+})
 
 
 app.listen(PORT, ()=> {
