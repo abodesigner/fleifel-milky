@@ -1,5 +1,13 @@
 import db from '../database'
 import User from '../types/user.type'
+import config from "../config"
+import bcrypt from "bcrypt"
+
+const hashedPassword = (password: string) => {
+    const salt = parseInt(config.salt as  string, 10)
+    const hash = bcrypt.hashSync(`${password}${config.pepper}`, salt)
+    return hash;
+}
 
 class UserModel {
     // Create User
@@ -16,7 +24,7 @@ class UserModel {
                 u.user_name,
                 u.first_name,
                 u.last_name,
-                u.password,
+                hashedPassword(u.password),
             ])
 
             // release connection
@@ -89,7 +97,7 @@ class UserModel {
                 u.user_name,
                 u.first_name,
                 u.last_name,
-                u.password,
+                hashedPassword(u.password),
                 u.id,
             ])
 
