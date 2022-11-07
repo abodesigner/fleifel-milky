@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import UserModel from '../models/user.model';
+import jwt from 'jsonwebtoken';
+import config from "../config";
 
 const userModel = new UserModel();
 
@@ -71,4 +73,36 @@ res.json({
         next(error)
     }
 }
+
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+
+    // return res.json({
+    //     status: 'SUCCESS',
+    //     message: 'USER authenticate successfully',
+    // })
+
+
+    try {
+        const {email, password} = req.body;
+        const user = await userModel.authenticate(email, password)
+        const token = jwt.sign({user}, config.tokenSecret as unknown as string)
+        if (!user) {
+
+            return res.status(401).json({
+                        status: 'ERROR',
+                        message: 'USERNAME OR PASSWIRD DON\'T MATCH PLEASE TRY AGIAN',
+                    })
+        }
+
+        return res.json({
+            status: 'SUCCESS',
+            data : {...user, token},
+            message: "USER authenticate successfully",
+        })
+    } catch (error) {
+        return next(error)
+    }
+}
+
+
 

@@ -17,7 +17,7 @@ class UserModel {
             const conn = await db.connect()
             // sql query
             const sql = `INSERT INTO users (email, user_name, first_name, last_name, password)
-                        VALUES ($1, $2, $3, $4, $5) RETURNING email, user_name, first_name,last_name`
+                        VALUES ($1, $2, $3, $4, $5) RETURNING *`;
             // run query
             const result = await conn.query(sql, [
                 u.email,
@@ -136,6 +136,39 @@ class UserModel {
         }
     }
     // authenticate user
+    async authenticate(email: string,password: string) : Promise<User | null> {
+        try {
+            const conn= await db.connect();
+            const sql = 'SELECT password FROM users WHERE email=($1)';
+            const result = await conn.query(sql, [email])
+            // User exist
+            if (result.rows.length){
+                // Check password
+                const {password: hashedPassword} = result.rows[0];
+                const isPasswordValid = bcrypt.compareSync(
+                    `${password}${config.pepper}`,
+                    hashedPassword
+                )
+
+                // PASSWORD TRUE
+                if (isPasswordValid) {
+                    const userInfo = await conn.query(
+                        'SELECT id, email, user_name, first_name, last_name FROM users WHERE email=($1)',
+                        [email]
+                    )
+
+                    return userInfo.rows[0]
+                }
+
+            }
+            conn.release();
+            return null;
+        }
+
+        catch (error) {
+            throw new Error(`Unable to login: ${(error as Error).message}`)
+        }
+    }
 }
 
 export default UserModel;
